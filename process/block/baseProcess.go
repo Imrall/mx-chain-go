@@ -1448,7 +1448,7 @@ func (bp *baseProcessor) revertScheduledInfo() {
 	header, headerHash := bp.getLastCommittedHeaderAndHash()
 	err := bp.scheduledTxsExecutionHandler.RollBackToBlock(headerHash)
 	if err != nil {
-		log.Trace("baseProcessor.revertScheduledInfo", "error", err.Error())
+		log.Debug("baseProcessor.revertScheduledInfo", "error", err.Error())
 		scheduledInfo := &process.ScheduledInfo{
 			RootHash:        header.GetRootHash(),
 			IntermediateTxs: make(map[block.Type][]data.TransactionHandler),

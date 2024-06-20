@@ -138,7 +138,7 @@ func (gc *gasComputation) SetGasRefunded(gasRefunded uint64, hash []byte) {
 	}
 	gc.mutGasRefunded.Unlock()
 
-	log.Trace("gasComputation.SetGasRefunded", "tx hash", hash, "gas refunded", gasRefunded)
+	log.Debug("gasComputation.SetGasRefunded", "tx hash", hash, "gas refunded", gasRefunded)
 }
 
 // SetGasPenalized sets gas penalized for a given hash
