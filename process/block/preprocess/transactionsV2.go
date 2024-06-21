@@ -150,7 +150,7 @@ func (txs *transactions) processTransaction(
 	elapsedTime := time.Since(startTime)
 	mbInfo.processingInfo.totalTimeUsedForComputeGasProvided += elapsedTime
 	if err != nil {
-		log.Trace("processTransaction.computeGasProvided", "error", err)
+		log.Debug("processTransaction.computeGasProvided", "error", err)
 		isTxTargetedForDeletion := errors.Is(err, process.ErrMaxGasLimitPerOneTxInReceiverShardIsReached)
 		if isTxTargetedForDeletion {
 			mbInfo.processingInfo.numCrossShardTxsWithTooMuchGas++
@@ -200,6 +200,11 @@ func (txs *transactions) processTransaction(
 		mbInfo.mapGasConsumedByMiniBlockInReceiverShard[receiverShardID] = oldGasConsumedByMiniBlockInReceiverShard
 		mbInfo.gasInfo.totalGasConsumedInSelfShard = oldTotalGasConsumedInSelfShard
 
+		log.Debug("transactions.processTransaction (on bad)", "tx", txHash,
+			"mbInfo.gasInfo.gasConsumedByMiniBlocksInSenderShard", mbInfo.gasInfo.gasConsumedByMiniBlocksInSenderShard,
+			"mbInfo.mapGasConsumedByMiniBlockInReceiverShard[receiverShardID]", mbInfo.mapGasConsumedByMiniBlockInReceiverShard[receiverShardID],
+			"mbInfo.gasInfo.totalGasConsumedInSelfShard", mbInfo.gasInfo.totalGasConsumedInSelfShard)
+
 		return false, err
 	}
 
@@ -215,7 +220,14 @@ func (txs *transactions) processTransaction(
 			mbInfo.gasInfo.totalGasConsumedInSelfShard -= gasToBeSubtracted
 			mbInfo.mapGasConsumedByMiniBlockInReceiverShard[receiverShardID] -= gasToBeSubtracted
 		}
+
+		log.Debug("transactions.processTransaction", "tx", txHash, "gasRefunded", gasRefunded, "gasPenalized", gasPenalized, "gasToBeSubtracted", gasToBeSubtracted, "shouldDoTheSubtraction", shouldDoTheSubtraction)
 	}
+
+	log.Debug("transactions.processTransaction", "tx", txHash,
+		"mbInfo.gasInfo.gasConsumedByMiniBlocksInSenderShard", mbInfo.gasInfo.gasConsumedByMiniBlocksInSenderShard,
+		"mbInfo.mapGasConsumedByMiniBlockInReceiverShard[receiverShardID]", mbInfo.mapGasConsumedByMiniBlockInReceiverShard[receiverShardID],
+		"mbInfo.gasInfo.totalGasConsumedInSelfShard", mbInfo.gasInfo.totalGasConsumedInSelfShard)
 
 	if errors.Is(err, process.ErrFailedTransaction) {
 		log.Debug("transactions.processTransaction",
@@ -361,7 +373,7 @@ func (txs *transactions) verifyTransaction(
 	elapsedTime := time.Since(startTime)
 	mbInfo.schedulingInfo.totalTimeUsedForScheduledComputeGasProvided += elapsedTime
 	if err != nil {
-		log.Trace("verifyTransaction.computeGasProvided", "error", err)
+		log.Debug("verifyTransaction.computeGasProvided", "error", err)
 		isTxTargetedForDeletion := errors.Is(err, process.ErrMaxGasLimitPerOneTxInReceiverShardIsReached)
 		if isTxTargetedForDeletion {
 			mbInfo.schedulingInfo.numCrossShardTxsWithTooMuchGas++
@@ -514,7 +526,7 @@ func (txs *transactions) shouldContinueProcessingTx(
 	receiverShardID := wrappedTx.ReceiverShardID
 
 	if senderShardID != receiverShardID && isShardStuck != nil && isShardStuck(receiverShardID) {
-		log.Trace("shard is stuck", "shard", receiverShardID)
+		log.Debug("shard is stuck", "shard", receiverShardID)
 		return nil, nil, false
 	}
 
@@ -673,7 +685,7 @@ func (txs *transactions) shouldContinueProcessingScheduledTx(
 	}
 
 	if senderShardID != receiverShardID && isShardStuck != nil && isShardStuck(receiverShardID) {
-		log.Trace("shard is stuck", "shard", receiverShardID)
+		log.Debug("shard is stuck", "shard", receiverShardID)
 		return nil, nil, false
 	}
 

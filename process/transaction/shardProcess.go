@@ -196,8 +196,13 @@ func (txProc *txProcessor) ProcessTransaction(tx *transaction.Transaction) (vmco
 	)
 
 	txType, dstShardTxType := txProc.txTypeHandler.ComputeTransactionType(tx)
+
+	log.Debug("ProcessTransaction", "tx", txHash, "tx type", txType, "dst shard tx type", dstShardTxType)
+
 	err = txProc.checkTxValues(tx, acntSnd, acntDst, false)
 	if err != nil {
+		log.Debug("ProcessTransaction", "tx", txHash, "error after checkTxValues", err)
+
 		if errors.Is(err, process.ErrInsufficientFunds) {
 			receiptErr := txProc.executingFailedTransaction(tx, acntSnd, err)
 			if receiptErr != nil {

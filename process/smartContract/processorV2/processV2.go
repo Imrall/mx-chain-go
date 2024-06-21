@@ -285,7 +285,7 @@ func (sc *scProcessor) ExecuteSmartContractTransaction(
 		txHash := sc.computeTxHashUnsafe(tx)
 		log.Debug(fmt.Sprintf("scProcessor.ExecuteSmartContractTransaction(): execution took > %s", executeDurationAlarmThreshold), "tx hash", txHash, "sc", tx.GetRcvAddr(), "duration", duration, "returnCode", returnCode, "err", err, "data", string(tx.GetData()))
 	} else {
-		log.Trace("scProcessor.ExecuteSmartContractTransaction()", "sc", tx.GetRcvAddr(), "duration", duration, "returnCode", returnCode, "err", err, "data", string(tx.GetData()), "retMessage", string(failureContext.returnMessage))
+		log.Debug("scProcessor.ExecuteSmartContractTransaction()", "sc", tx.GetRcvAddr(), "duration", duration, "returnCode", returnCode, "err", err, "data", string(tx.GetData()), "retMessage", string(failureContext.returnMessage))
 	}
 
 	return returnCode, err
@@ -360,7 +360,7 @@ func (sc *scProcessor) doExecuteSmartContractTransaction(
 	var results []data.TransactionHandler
 	results, err = sc.processVMOutput(&vmInput.VMInput, vmOutput, txHash, tx, acntSnd, failureContext)
 	if err != nil {
-		log.Trace("process vm output returned with problem ", "err", err.Error())
+		log.Debug("process vm output returned with problem ", "err", err.Error())
 		failureContext.setMessages(err.Error(), []byte(vmOutput.ReturnMessage))
 		return vmcommon.ExecutionFailed, nil
 	}
@@ -413,7 +413,7 @@ func (sc *scProcessor) executeSmartContractCall(
 	if err != nil {
 		sc.arwenChangeLocker.RUnlock()
 		returnMessage := "cannot get vm from address"
-		log.Trace("get vm from address error", "error", err.Error())
+		log.Debug("get vm from address error", "error", err.Error())
 		failureContext.setMessages(err.Error(), []byte(returnMessage))
 		return userErrorVmOutput, nil
 	}
@@ -873,7 +873,7 @@ func (sc *scProcessor) ExecuteBuiltInFunction(
 		txHash := sc.computeTxHashUnsafe(tx)
 		log.Debug(fmt.Sprintf("scProcessor.ExecuteBuiltInFunction(): execution took > %s", executeDurationAlarmThreshold), "tx hash", txHash, "sc", tx.GetRcvAddr(), "duration", duration, "returnCode", returnCode, "err", err, "data", string(tx.GetData()))
 	} else {
-		log.Trace("scProcessor.ExecuteBuiltInFunction()", "sc", tx.GetRcvAddr(), "duration", duration, "returnCode", returnCode, "err", err, "data", string(tx.GetData()))
+		log.Debug("scProcessor.ExecuteBuiltInFunction()", "sc", tx.GetRcvAddr(), "duration", duration, "returnCode", returnCode, "err", err, "data", string(tx.GetData()))
 	}
 
 	return returnCode, err
@@ -1098,12 +1098,12 @@ func (sc *scProcessor) extractAsyncCallParamsFromTxData(data string) (*vmcommon.
 	function, args, err := sc.argsParser.ParseCallData(data)
 	dataAsString := function
 	if err != nil {
-		log.Trace("scProcessor.createSCRsWhenError()", "error parsing args", data)
+		log.Debug("scProcessor.createSCRsWhenError()", "error parsing args", data)
 		return nil, nil, err
 	}
 
 	if len(args) < 2 {
-		log.Trace("scProcessor.createSCRsWhenError()", "no async params found", data)
+		log.Debug("scProcessor.createSCRsWhenError()", "no async params found", data)
 		return nil, nil, err
 	}
 
@@ -1129,12 +1129,12 @@ func (sc *scProcessor) reAppendAsyncParamsToTxCallbackData(data string, isCrossS
 	if isCrossShardESDTCall {
 		function, args, err := sc.argsParser.ParseCallData(data)
 		if err != nil {
-			log.Trace("scProcessor.createSCRsWhenError()", "error parsing args", data)
+			log.Debug("scProcessor.createSCRsWhenError()", "error parsing args", data)
 			return "", err
 		}
 
 		if len(args) < 2 {
-			log.Trace("scProcessor.createSCRsWhenError()", "no async params found", data)
+			log.Debug("scProcessor.createSCRsWhenError()", "no async params found", data)
 			return "", err
 		}
 		data = function
@@ -1756,7 +1756,7 @@ func (sc *scProcessor) DeploySmartContract(tx data.TransactionHandler, acntSnd s
 		txHash := sc.computeTxHashUnsafe(tx)
 		log.Debug(fmt.Sprintf("scProcessor.DeploySmartContract(): execution took > %s", executeDurationAlarmThreshold), "tx hash", txHash, "sc", tx.GetRcvAddr(), "duration", duration, "returnCode", returnCode, "err", err, "data", string(tx.GetData()))
 	} else {
-		log.Trace("scProcessor.DeploySmartContract()", "sc", tx.GetRcvAddr(), "duration", duration, "returnCode", returnCode, "err", err, "data", string(tx.GetData()))
+		log.Debug("scProcessor.DeploySmartContract()", "sc", tx.GetRcvAddr(), "duration", duration, "returnCode", returnCode, "err", err, "data", string(tx.GetData()))
 	}
 
 	return returnCode, err
@@ -1800,7 +1800,7 @@ func (sc *scProcessor) doDeploySmartContract(
 
 	vmInput, vmType, err := sc.createVMDeployInput(tx)
 	if err != nil {
-		log.Trace("Transaction data invalid", "error", err.Error())
+		log.Debug("Transaction data invalid", "error", err.Error())
 		failureContext.setMessages(err.Error(), []byte(""))
 		return vmcommon.UserError, nil
 	}
@@ -1811,7 +1811,7 @@ func (sc *scProcessor) doDeploySmartContract(
 	vmExec, err := sc.vmContainer.Get(vmType)
 	if err != nil {
 		sc.arwenChangeLocker.RUnlock()
-		log.Trace("VM not found", "error", err.Error())
+		log.Debug("VM not found", "error", err.Error())
 		failureContext.setMessages(err.Error(), []byte(""))
 		return vmcommon.UserError, nil
 	}
@@ -1826,7 +1826,7 @@ func (sc *scProcessor) doDeploySmartContract(
 
 	if vmOutput == nil {
 		err = process.ErrNilVMOutput
-		log.Trace("run smart contract create", "error", err.Error())
+		log.Debug("run smart contract create", "error", err.Error())
 		failureContext.setMessages(err.Error(), []byte(""))
 		return vmcommon.UserError, nil
 	}
@@ -1846,7 +1846,7 @@ func (sc *scProcessor) doDeploySmartContract(
 
 	results, err := sc.processVMOutput(&vmInput.VMInput, vmOutput, txHash, tx, acntSnd, failureContext)
 	if err != nil {
-		log.Trace("Processing error", "error", err.Error())
+		log.Debug("Processing error", "error", err.Error())
 		failureContext.setMessages(err.Error(), []byte(vmOutput.ReturnMessage))
 		return vmcommon.ExecutionFailed, nil
 	}
@@ -2099,7 +2099,7 @@ func (sc *scProcessor) penalizeUserIfNeeded(
 	}
 
 	gasUsed := gasProvidedForProcessing - vmOutput.GasRemaining
-	log.Trace("scProcessor.penalizeUserIfNeeded: too much gas provided",
+	log.Debug("scProcessor.penalizeUserIfNeeded: too much gas provided",
 		"hash", txHash,
 		"nonce", tx.GetNonce(),
 		"value", tx.GetValue(),
@@ -2615,7 +2615,7 @@ func (sc *scProcessor) createSCRForSenderAndRelayer(
 		addReturnDataToSCR(vmOutput, scTx)
 	}
 
-	log.Trace("createSCRForSenderAndRelayer ", "data", string(scTx.Data), "snd", scTx.SndAddr, "rcv", scTx.RcvAddr, "gasRemaining", vmOutput.GasRemaining)
+	log.Debug("createSCRForSenderAndRelayer ", "data", string(scTx.Data), "snd", scTx.SndAddr, "rcv", scTx.RcvAddr, "gasRemaining", vmOutput.GasRemaining)
 	return scTx, refundGasToRelayerSCR
 }
 
@@ -2683,7 +2683,7 @@ func (sc *scProcessor) ProcessSmartContractResult(scr *smartContractResult.Smart
 		return 0, process.ErrNilSmartContractResult
 	}
 
-	log.Trace("scProcessor.ProcessSmartContractResult()", "sender", scr.GetSndAddr(), "receiver", scr.GetRcvAddr(), "data", string(scr.GetData()))
+	log.Debug("scProcessor.ProcessSmartContractResult()", "sender", scr.GetSndAddr(), "receiver", scr.GetRcvAddr(), "data", string(scr.GetData()))
 
 	var err error
 	returnCode := vmcommon.UserError
