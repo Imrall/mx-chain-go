@@ -24,7 +24,6 @@ jobs:
 
     strategy:
       matrix:
-        #TODO Include Macos support later on
         runs-on: [ubuntu-latest]
     runs-on: ${{ matrix.runs-on }}
     env:
